@@ -1,7 +1,6 @@
 
 from functools import lru_cache
-from fuzzywuzzy import fuzz
-from ollama_package import llm_response
+from ollama_package import get_llm_response
 
 # Create a dict with git commands and discriptions
 
@@ -76,17 +75,40 @@ git_commands = {
 }
 
 
-
-
-
-
-
-
 def get_user_query() -> str: 
     user_query = input("Please describe the git command that you need: ")
     return user_query
 
 def get_git_command(user_query: str) -> str:
-    for i in git_commands.keys():
-        if fuzz.ratio(llm_response.lower(), i.lower()) > 70:
-            print("Matched Command:", git_commands[i])
+    max_attempts = 3
+    for _ in range(max_attempts):
+        llm_command = get_llm_response(user_query).strip()
+        print(f"LLM returned: '{llm_command}'")
+        if llm_command in git_commands:
+            return (
+            f"The best matching Git Command is: {llm_command}\n"
+            f"Description: {git_commands[llm_command]}\n")
+    return "Sorry, I couldn't find a matching Git command. Please try rephrasing your request."
+        
+
+def main(): 
+    # The main function for the CLI
+
+    print(f"""
+Welcome to Git-Ai! This program uses a simple AI Model
+to help you find the right Git command based on your description.""")
+    
+    print("Go ahead and ask it any Git command related questions! When you're finished, type exit to stop the program")
+
+    while True: 
+        user_query = get_user_query()
+
+        if user_query.lower() == "exit":
+            print("Thank you for using Git-Ai! Goodbye :)")
+            break
+
+        git_command = get_git_command(user_query)
+        print(git_command)
+
+if __name__ == "__main__":
+    main()
