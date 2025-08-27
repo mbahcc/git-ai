@@ -83,7 +83,6 @@ def get_git_command(user_query: str) -> str:
     max_attempts = 3
     for _ in range(max_attempts):
         llm_command = get_llm_response(user_query).strip()
-        print(f"LLM returned: '{llm_command}'")
         if llm_command in git_commands:
             return (
             f"The best matching Git Command is: {llm_command}\n"
